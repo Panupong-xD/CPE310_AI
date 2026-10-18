@@ -1,0 +1,263 @@
+{
+  "dataset_size": 5654,
+  "prevalence": 0.1937,
+  "class_distribution": {
+    "diabetic": 1095,
+    "non_diabetic": 4559
+  },
+  "feature_correlations": {
+    "age": 0.3071,
+    "waist_to_height_ratio": 0.2906,
+    "waist_cm": 0.2753,
+    "hypertension_flag": 0.2544,
+    "bmi": 0.2092,
+    "systolic_bp": 0.1956,
+    "weight_kg": 0.1661,
+    "sleep_trouble_flag": 0.1155,
+    "sedentary_flag": 0.067,
+    "smoking_history_flag": 0.0445,
+    "sugar_to_fiber_ratio": -0.0022,
+    "daily_fiber_g": -0.0155,
+    "gender_is_female": -0.0168,
+    "diastolic_bp": -0.0372,
+    "height_cm": -0.0516,
+    "daily_calories_kcal": -0.1048,
+    "daily_sugar_g": -0.1128
+  },
+  "group_means": {
+    "Non-Diabetic Mean": {
+      "age": 46.317,
+      "gender_is_female": 0.525,
+      "bmi": 28.325,
+      "waist_cm": 96.882,
+      "height_cm": 167.355,
+      "weight_kg": 79.567,
+      "waist_to_height_ratio": 0.58,
+      "systolic_bp": 121.379,
+      "diastolic_bp": 70.113,
+      "daily_sugar_g": 115.388,
+      "daily_fiber_g": 17.095,
+      "daily_calories_kcal": 2172.891,
+      "sugar_to_fiber_ratio": 20266.195,
+      "hypertension_flag": 0.361,
+      "sedentary_flag": 0.809,
+      "smoking_history_flag": 0.428,
+      "sleep_trouble_flag": 0.234
+    },
+    "Diabetic Mean": {
+      "age": 59.974,
+      "gender_is_female": 0.504,
+      "bmi": 32.08,
+      "waist_cm": 108.471,
+      "height_cm": 166.027,
+      "weight_kg": 88.779,
+      "waist_to_height_ratio": 0.653,
+      "systolic_bp": 130.395,
+      "diastolic_bp": 68.903,
+      "daily_sugar_g": 92.345,
+      "daily_fiber_g": 16.668,
+      "daily_calories_kcal": 1897.674,
+      "sugar_to_fiber_ratio": 15231.048,
+      "hypertension_flag": 0.679,
+      "sedentary_flag": 0.874,
+      "smoking_history_flag": 0.484,
+      "sleep_trouble_flag": 0.362
+    },
+    "Abs Diff": {
+      "age": 13.656,
+      "gender_is_female": 0.021,
+      "bmi": 3.755,
+      "waist_cm": 11.589,
+      "height_cm": 1.328,
+      "weight_kg": 9.211,
+      "waist_to_height_ratio": 0.074,
+      "systolic_bp": 9.015,
+      "diastolic_bp": 1.21,
+      "daily_sugar_g": 23.043,
+      "daily_fiber_g": 0.427,
+      "daily_calories_kcal": 275.217,
+      "sugar_to_fiber_ratio": 5035.147,
+      "hypertension_flag": 0.318,
+      "sedentary_flag": 0.065,
+      "smoking_history_flag": 0.056,
+      "sleep_trouble_flag": 0.128
+    },
+    "% Change": {
+      "age": 29.484,
+      "gender_is_female": -4.04,
+      "bmi": 13.256,
+      "waist_cm": 11.962,
+      "height_cm": -0.793,
+      "weight_kg": 11.577,
+      "waist_to_height_ratio": 12.731,
+      "systolic_bp": 7.427,
+      "diastolic_bp": -1.725,
+      "daily_sugar_g": -19.97,
+      "daily_fiber_g": -2.5,
+      "daily_calories_kcal": -12.666,
+      "sugar_to_fiber_ratio": -24.845,
+      "hypertension_flag": 88.167,
+      "sedentary_flag": 8.014,
+      "smoking_history_flag": 13.053,
+      "sleep_trouble_flag": 54.743
+    }
+  },
+  "missing_percentages": {
+    "age": 0.0,
+    "gender_is_female": 0.0,
+    "bmi": 4.3,
+    "waist_cm": 8.63,
+    "height_cm": 4.12,
+    "weight_kg": 4.07,
+    "waist_to_height_ratio": 8.79,
+    "systolic_bp": 11.37,
+    "diastolic_bp": 11.37,
+    "daily_sugar_g": 12.54,
+    "daily_fiber_g": 12.54,
+    "daily_calories_kcal": 12.54,
+    "sugar_to_fiber_ratio": 12.54,
+    "hypertension_flag": 0.0,
+    "sedentary_flag": 0.02,
+    "smoking_history_flag": 0.04,
+    "sleep_trouble_flag": 0.04,
+    "is_diabetic": 0.0
+  },
+  "feature_stats": {
+    "age": {
+      "median": 48.0,
+      "mean": 48.96215068977715,
+      "min": 20.0,
+      "max": 80.0,
+      "p25": 34.0,
+      "p75": 63.0
+    },
+    "gender_is_female": {
+      "median": 1.0,
+      "mean": 0.5212239122744959,
+      "min": 0.0,
+      "max": 1.0,
+      "p25": 0.0,
+      "p75": 1.0
+    },
+    "bmi": {
+      "median": 27.8,
+      "mean": 29.056181851783403,
+      "min": 14.1,
+      "max": 82.9,
+      "p25": 24.1,
+      "p75": 32.4
+    },
+    "waist_cm": {
+      "median": 97.5,
+      "mean": 99.10067750677506,
+      "min": 55.5,
+      "max": 177.9,
+      "p25": 87.2,
+      "p75": 108.5
+    },
+    "height_cm": {
+      "median": 166.8,
+      "mean": 167.0950415052573,
+      "min": 135.4,
+      "max": 202.6,
+      "p25": 159.7,
+      "p75": 174.3
+    },
+    "weight_kg": {
+      "median": 78.05,
+      "mean": 81.36570796460178,
+      "min": 32.3,
+      "max": 207.2,
+      "p25": 66.1,
+      "p75": 92.6
+    },
+    "waist_to_height_ratio": {
+      "median": 0.583941605839416,
+      "mean": 0.5936182688036022,
+      "min": 0.36441234405778067,
+      "max": 1.1371127224785762,
+      "p25": 0.5223789086450031,
+      "p75": 0.6517954298150163
+    },
+    "systolic_bp": {
+      "median": 120.0,
+      "mean": 123.11195370185591,
+      "min": 66.0,
+      "max": 228.0,
+      "p25": 110.0,
+      "p75": 132.0
+    },
+    "diastolic_bp": {
+      "median": 70.0,
+      "mean": 69.88066254240671,
+      "min": 0.0,
+      "max": 122.0,
+      "p25": 62.0,
+      "p75": 78.0
+    },
+    "daily_sugar_g": {
+      "median": 93.24,
+      "mean": 110.91931648129425,
+      "min": 0.13,
+      "max": 1115.5,
+      "p25": 57.46,
+      "p75": 142.56
+    },
+    "daily_fiber_g": {
+      "median": 14.7,
+      "mean": 17.01253791708797,
+      "min": 0.0,
+      "max": 136.3,
+      "p25": 9.5,
+      "p75": 21.9
+    },
+    "daily_calories_kcal": {
+      "median": 1936.0,
+      "mean": 2119.516885743175,
+      "min": 117.0,
+      "max": 12108.0,
+      "p25": 1433.0,
+      "p75": 2589.0
+    },
+    "sugar_to_fiber_ratio": {
+      "median": 6.04374055665538,
+      "mean": 19289.712049916227,
+      "min": 0.053749977604176,
+      "max": 60924999.99999999,
+      "p25": 3.752110033725329,
+      "p75": 10.36241378190205
+    },
+    "hypertension_flag": {
+      "median": 0.0,
+      "mean": 0.42217898832684825,
+      "min": 0.0,
+      "max": 1.0,
+      "p25": 0.0,
+      "p75": 1.0
+    },
+    "sedentary_flag": {
+      "median": 1.0,
+      "mean": 0.8216875995046877,
+      "min": 0.0,
+      "max": 1.0,
+      "p25": 1.0,
+      "p75": 1.0
+    },
+    "smoking_history_flag": {
+      "median": 0.0,
+      "mean": 0.43895966029723993,
+      "min": 0.0,
+      "max": 1.0,
+      "p25": 0.0,
+      "p75": 1.0
+    },
+    "sleep_trouble_flag": {
+      "median": 0.0,
+      "mean": 0.25849256900212314,
+      "min": 0.0,
+      "max": 1.0,
+      "p25": 0.0,
+      "p75": 1.0
+    }
+  }
+}

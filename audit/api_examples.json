@@ -1,0 +1,157 @@
+{
+  "predict": {
+    "path": "/api/predict",
+    "request": {
+      "age": 55,
+      "gender": "male",
+      "weight_kg": 90,
+      "height_cm": 172,
+      "waist_cm": 104,
+      "systolic_bp": 138,
+      "diastolic_bp": 86,
+      "daily_sugar_g": 95,
+      "daily_fiber_g": 12,
+      "hypertension_history": true,
+      "smoking_history": false,
+      "vigorous_activity": false,
+      "sleep_trouble": true
+    },
+    "response": {
+      "risk_score": 31.1,
+      "risk_category": "Intermediate model score",
+      "risk_tier": "moderate",
+      "percentile": 79.8,
+      "key_drivers": [
+        {
+          "feature": "Age (80+ top-coded)",
+          "raw_feature_name": "age",
+          "user_value": "55.00",
+          "impact": "+5.71 pp",
+          "impact_value": 0.05707319031471701,
+          "direction": "negative",
+          "advice": "This feature raises the model score relative to its training background. This is a model association, not a causal effect or clinical recommendation."
+        },
+        {
+          "feature": "Waist-to-Height Ratio",
+          "raw_feature_name": "waist_to_height_ratio",
+          "user_value": "0.60",
+          "impact": "+3.23 pp",
+          "impact_value": 0.03228736991376416,
+          "direction": "negative",
+          "advice": "This feature raises the model score relative to its training background. This is a model association, not a causal effect or clinical recommendation."
+        },
+        {
+          "feature": "Hypertension History / Elevated BP",
+          "raw_feature_name": "hypertension_flag",
+          "user_value": "1.00",
+          "impact": "+3.17 pp",
+          "impact_value": 0.03165175112334857,
+          "direction": "negative",
+          "advice": "This feature raises the model score relative to its training background. This is a model association, not a causal effect or clinical recommendation."
+        }
+      ],
+      "protective_factors": [
+        {
+          "feature": "Mean Diastolic BP",
+          "raw_feature_name": "diastolic_bp",
+          "user_value": "86.00",
+          "impact": "-4.02 pp",
+          "impact_value": -0.04020037828934102,
+          "direction": "positive",
+          "advice": "This feature lowers the model score relative to its training background. This is a model association, not a causal effect or clinical recommendation."
+        },
+        {
+          "feature": "Dietary Fiber",
+          "raw_feature_name": "daily_fiber_g",
+          "user_value": "12.00",
+          "impact": "-0.36 pp",
+          "impact_value": -0.003603598369351743,
+          "direction": "positive",
+          "advice": "This feature lowers the model score relative to its training background. This is a model association, not a causal effect or clinical recommendation."
+        }
+      ],
+      "bmi": 30.4,
+      "waist_to_height_ratio": 0.6,
+      "imputed_fields": [
+        "daily_calories_kcal"
+      ],
+      "screening_positive": true,
+      "decision_threshold": 12.392,
+      "shap_base_score": 15.679487,
+      "shap_total_contribution_points": 15.397564
+    }
+  },
+  "simulate": {
+    "path": "/api/simulate",
+    "request": {
+      "baseline": {
+        "age": 55,
+        "gender": "male",
+        "weight_kg": 90,
+        "height_cm": 172,
+        "waist_cm": 104,
+        "systolic_bp": 138,
+        "diastolic_bp": 86,
+        "daily_sugar_g": 95,
+        "daily_fiber_g": 12,
+        "hypertension_history": true,
+        "smoking_history": false,
+        "vigorous_activity": false,
+        "sleep_trouble": true
+      },
+      "adjustments": {
+        "delta_weight_kg": -5,
+        "delta_waist_cm": -4,
+        "delta_sugar_pct": -30,
+        "delta_fiber_g": 8,
+        "active_exercise": true,
+        "manage_hypertension": true
+      }
+    },
+    "response": {
+      "original_risk_score": 31.1,
+      "new_risk_score": 30.7,
+      "delta_risk_score": 0.4,
+      "delta_percentage": 1.3,
+      "original_category": "Intermediate model score",
+      "new_category": "Intermediate model score",
+      "new_risk_tier": "moderate",
+      "summary_takeaway": "The model score changes from 31.1% to 30.7% (baseline minus scenario: +0.4 percentage points). This is an association-based input scenario, not a forecast of treatment benefit. Missing adjusted measurements use fit-partition medians; values are bounded to the form limits.",
+      "simulated_bmi": 28.7,
+      "simulated_waist_to_height_ratio": 0.58
+    }
+  },
+  "identity_simulation": {
+    "path": "/api/simulate",
+    "request": {
+      "baseline": {
+        "age": 55,
+        "gender": "male",
+        "weight_kg": 90,
+        "height_cm": 172,
+        "waist_cm": 104,
+        "systolic_bp": 138,
+        "diastolic_bp": 86,
+        "daily_sugar_g": 95,
+        "daily_fiber_g": 12,
+        "hypertension_history": true,
+        "smoking_history": false,
+        "vigorous_activity": false,
+        "sleep_trouble": true
+      },
+      "adjustments": {}
+    },
+    "response": {
+      "original_risk_score": 31.1,
+      "new_risk_score": 31.1,
+      "delta_risk_score": 0.0,
+      "delta_percentage": 0.0,
+      "original_category": "Intermediate model score",
+      "new_category": "Intermediate model score",
+      "new_risk_tier": "moderate",
+      "summary_takeaway": "The model score changes from 31.1% to 31.1% (baseline minus scenario: +0.0 percentage points). This is an association-based input scenario, not a forecast of treatment benefit. Missing adjusted measurements use fit-partition medians; values are bounded to the form limits.",
+      "simulated_bmi": 30.4,
+      "simulated_waist_to_height_ratio": 0.6
+    }
+  }
+}

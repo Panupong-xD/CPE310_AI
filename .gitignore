@@ -1,0 +1,60 @@
+# Python environments and generated caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+
+# Node.js dependencies and build output
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.vercel/
+frontend/next-env.d.ts
+
+# Local configuration and credentials (commit templates only)
+.env
+.env.*
+!.env.example
+!.env.*.example
+.aws/
+*.pem
+*.key
+
+# Serialized models, explainers, and train/test splits: regenerate via README
+*.joblib
+*.pkl
+*.pickle
+
+# Runtime logs and temporary files
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Operating system and local editor files
+.DS_Store
+._*
+Thumbs.db
+.idea/
+.vscode/
+
+# Existing local shortcut points back to itself; keep the actual CSV files.
+/Dataset/Dataset
+
+# Intentionally keep Dataset/, source audit snapshots, JSON/CSV reports,
+# README.md, package-lock.json, and requirements-lock.txt for reproducibility.

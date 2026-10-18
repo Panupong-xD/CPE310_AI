@@ -1,0 +1,18 @@
+{
+  "n": 5654,
+  "positive": 1095,
+  "stored_model_test": {
+    "roc_auc": 0.7789969358327324,
+    "average_precision": 0.4432344009372194,
+    "confusion_matrix": [
+      [
+        627,
+        285
+      ],
+      [
+        62,
+        157
+      ]
+    ]
+  }
+}
