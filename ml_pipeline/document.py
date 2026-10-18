@@ -17,12 +17,24 @@ def generate():
     def code(s,lang='python'): add(f'```{lang}\n{s.rstrip()}\n```')
     def table(headers,rows):
         add('| '+' | '.join(headers)+' |\n| '+' | '.join(['---']*len(headers))+' |\n'+'\n'.join('| '+' | '.join(str(v) for v in row)+' |' for row in rows))
-    add('''# GlycoRisk — รายงานตรวจสอบและคู่มือโปรเจค Data Science ตั้งแต่ข้อมูลดิบจนถึง Web Application
+    add('''# GlycoRisk — โครงงานวิชา AI: Machine Learning สำหรับจำแนก Diabetes Proxy
 
 เอกสารฉบับนี้อธิบายโค้ดที่แก้ไขและรันจริงเมื่อ **18 ตุลาคม 2026** ตามเวลาประเทศไทย
 อ่านได้โดยไม่ต้องเคยทำโปรเจคนี้มาก่อน
 มีทั้งเหตุผลทาง Data Science โค้ด สูตร ผลของทุกโมเดล และวิธีตรวจสอบตัวเลขย้อนกลับ
 ตัวเลขในรายงานสร้างจาก artifacts จริง ไม่ใช่ตัวเลขตัวอย่างที่เขียนขึ้นเพื่อแสดงหน้าตา
+
+**แกนของโครงงานคือกระบวนการทดลอง Machine Learning** ตั้งแต่การสร้าง target
+การเตรียม features โดยป้องกัน leakage ไปจนถึงการเปรียบเทียบโมเดลและวิเคราะห์ข้อผิดพลาด
+backend ใช้ตรวจว่าโมเดลที่ฝึกสามารถรับข้อมูลใหม่และให้ผลตรงกับ training pipeline
+หน้าเว็บเป็นส่วนสาธิตการเรียกโมเดล จึงอธิบายเฉพาะวิธีเปิดใช้งานและข้อจำกัดในการแสดงผล
+
+### แผนการอ่านสำหรับรายงานและการนำเสนองาน AI
+
+เริ่มจากนิยามโจทย์และ label แล้วอ่าน data preparation, CV, calibration และผลทดสอบตามลำดับ
+ใช้ส่วนโค้ดฉบับเต็มเพื่อตามว่าทฤษฎีแต่ละส่วนถูกนำไปใช้ในฟังก์ชันใด
+จุดที่ต้องอธิบายได้คือเหตุผลของการทดลอง ความถูกต้องของการประเมิน และสิ่งที่ผลยังพิสูจน์ไม่ได้
+การเปิดหน้าเว็บสำเร็จเป็นเพียงการสาธิตระบบ ไม่ใช่หลักฐานว่าโมเดล generalize ได้
 
 โปรเจคนี้เป็น **โมเดลเพื่อการศึกษา สำหรับจำแนก diabetes proxy ณ ช่วงเวลาที่สำรวจ**
 ใช้ข้อมูล NHANES สหรัฐอเมริกา รอบ 2013–2014
@@ -49,7 +61,7 @@ def generate():
 14. [ความไม่แน่นอนและผลแยกกลุ่ม](#ความไม่แน่นอนและผลแยกกลุ่ม)
 15. [SHAP และความหมายของคะแนน](#shap-และความหมายของคะแนน)
 16. [Backend และการทำนาย](#backend-และการทำนาย)
-17. [What-if และ frontend](#what-if-และ-frontend)
+17. [Input scenarios และส่วนสาธิต](#input-scenarios-และส่วนสาธิต)
 18. [วิธีรันตั้งแต่ต้น](#วิธีรันตั้งแต่ต้น)
 19. [การทดสอบและตรวจซ้ำ](#การทดสอบและตรวจซ้ำ)
 20. [ข้อจำกัดและแนวทางพัฒนา](#ข้อจำกัดและแนวทางพัฒนา)
@@ -561,6 +573,87 @@ BMI, weight, height, waist และ waist/height มีความสัมพ
 LightGBM/XGBoost ไม่อยู่ใน benchmark ที่แก้ไข แม้บาง package จะติดตั้งอยู่ใน environment เดิม
 การเพิ่มโมเดลตาม import สำเร็จแบบเงียบ ๆ ทำให้ชุดทดลองเปลี่ยนข้ามเครื่องได้ จึงเอาพฤติกรรมนั้นออก
 
+### คำถามที่การทดลองนี้ต้องตอบ
+
+คำถามแรกคือ features ที่ไม่ใช้ lab จัดอันดับ diabetes proxy ได้ดีกว่า prior baseline หรือไม่
+คำถามที่สองคือ nonlinear ensembles ให้ประโยชน์เพิ่มจาก Logistic Regression มากเพียงใด
+คำถามที่สามคือคะแนนถูกปรับเทียบได้ดีเพียงใดเมื่อแยกข้อมูล calibration ออกมาต่างหาก
+คำถามที่สี่คือเมื่อเน้น sensitivity จะต้องแลกกับ false positive เท่าใด
+คำถามสุดท้ายคือผลรวมซ่อนข้อผิดพลาดในบางช่วงอายุหรือไม่
+
+คำถามเหล่านี้ต่างกันและไม่ควรถูกยุบเหลือคำถามเดียวว่าโมเดลใด accuracy สูงที่สุด
+ROC-AUC ใช้ตัดสิน ranking ใน CV ตาม protocol
+AP ช่วยพิจารณาความแม่นยำของ positive predictions ภายใต้ class imbalance
+Brier/log loss ใช้พิจารณาคะแนน probability
+confusion matrix ใช้เห็นผลของ threshold เป็นจำนวนผู้เข้าร่วม
+subgroup analysis ใช้เปิดเผยข้อจำกัดที่ค่าเฉลี่ยรวมอาจบดบัง
+
+### ทำไมต้องมีทั้ง baseline แบบ prior และ linear model
+
+DummyPrior ไม่เรียนความสัมพันธ์กับ features และให้คะแนนคงที่
+เป็นจุดอ้างอิงว่าการใช้ features มีข้อมูลเพิ่มจาก class proportion หรือไม่
+Logistic Regression เป็น baseline ที่เรียนจาก features จริง
+ถ้าโมเดลซับซ้อนชนะ linear baseline เพียงเล็กน้อย ต้องพิจารณาความผันผวนและต้นทุนด้วย
+การมีโมเดลจำนวนมากไม่ใช่หลักประกันว่าการทดลองมีคุณภาพ
+สิ่งสำคัญคือเปรียบเทียบบน subjects และ protocol เดียวกัน
+
+### Logistic Regression เรียนอะไร
+
+หลัง impute และ scale ให้ feature vector เป็น x
+โมเดลคำนวณ z = b + w^T x แล้วแปลงด้วย sigmoid เป็น p = 1/(1+exp(-z))
+จึงมีขอบเขตการตัดสินเชิงเส้นใน feature space ที่ป้อนเข้าไป แม้ชื่อจะมีคำว่า regression
+regularization ควบคุมขนาด coefficients เพื่อจำกัดความซับซ้อน
+C เป็นพารามิเตอร์ความแรงของ regularization ใน sklearn โดย C เล็กหมายถึงการควบคุมแรงขึ้น
+ไม่ได้แปลว่า C=0.5 ถูกพิสูจน์ว่าเหมาะที่สุด เพราะงานนี้ไม่ได้ค้นค่า C หลายค่า
+ดู [sklearn Logistic Regression](https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression)
+
+ผลของ weighted loss คือ sample จากบาง class มีน้ำหนักต่อ objective มากขึ้น
+สำหรับ balanced binary classes น้ำหนัก class k แปรตาม n/(2*n_k)
+นี่เปลี่ยนการเรียนรู้ ไม่ได้เพิ่มข้อมูล positive ใหม่หรือพิสูจน์ว่า probability calibrated
+ไม่ควรแปล coefficient ว่า causal effect เพราะมี confounding และ features ที่สัมพันธ์กัน
+
+### Random Forest กับ ExtraTrees เปรียบเทียบอะไร
+
+ทั้งคู่รวม decision trees หลายต้นเพื่อลดการพึ่งพาต้นไม้ต้นเดียว
+Random Forest ใช้ bootstrap และสุ่ม feature candidates ตาม configuration ของ estimator
+ExtraTrees เพิ่มความสุ่มของ split thresholds และ candidate นี้ใช้ bootstrap=False ตาม default
+probability ของ ensemble รวมจากผลของต้นไม้ ไม่ใช่ผลตรวจทางคลินิก
+รายละเอียดกลไกอ้างอิง [sklearn randomized tree ensembles](https://scikit-learn.org/stable/modules/ensemble.html#forests-of-randomized-trees)
+
+ต้นไม้แบ่ง feature space เป็นบริเวณ จึงจับ nonlinear patterns และ interactions ได้
+ตัวอย่างเช่นความสัมพันธ์กับรอบเอวอาจต่างกันตามช่วงอายุโดยไม่ต้องสร้าง interaction term เอง
+การจับ interaction ได้ไม่ได้พิสูจน์ว่า interaction ที่เรียนตรงกับกลไกชีววิทยาจริง
+จำนวนต้นไม้ 250 เป็นจำนวน estimators ใน ensemble ไม่ใช่จำนวน epochs แบบ neural network
+max_depth=8 และ min_samples_leaf=5 จำกัดความละเอียดของบริเวณที่ต้นไม้แบ่ง
+การเพิ่มความลึกอาจเพิ่มความซับซ้อน แต่ต้องประเมินบน validation แทนการเดาจาก training fit
+
+### Gradient Boosting กับ HistGradientBoosting เปรียบเทียบอะไร
+
+boosting เรียนต้นไม้ตามลำดับ โดยต้นใหม่ช่วยปรับ objective ของ ensemble ปัจจุบัน
+learning_rate ควบคุมขนาดการอัปเดตและต้องพิจารณาควบคู่จำนวน boosting iterations
+HistGradientBoosting ใช้การแบ่ง numeric values เป็น bins ในการหาจุด split
+ดู [sklearn Gradient Boosting](https://scikit-learn.org/stable/modules/ensemble.html#gradient-tree-boosting)
+
+max_iter=180 หรือ n_estimators=180 เป็นเพดาน/จำนวนขั้นตามชนิด estimator
+ไม่ได้มีความหมายเหมือน 180 ต้นอิสระใน bagging
+ทั้งสอง candidate ใช้ depth และการถ่วง class ต่างกันตามค่าที่ประกาศไว้
+ดังนั้นผลต่างไม่ใช่การแยกผลของ histogram strategy เพียงปัจจัยเดียว
+แม้ HistGradientBoosting รองรับ missing values ได้เอง งานนี้ส่งข้อมูลผ่าน common imputer ก่อน
+จึงไม่ได้ทดสอบข้อได้เปรียบของ native missing-value handling ในการทดลองนี้
+
+### สิ่งใดเป็นการทดลองจริง และสิ่งใดยังไม่ได้ทดลอง
+
+ทดลองจริง: fixed candidates, fit-only 5-fold CV, independent sigmoid calibration
+และ test comparison ที่ threshold ซึ่งเลือกจาก development data
+ยังไม่ได้ทดลอง: feature ablation, learning curves, hyperparameter search
+หรือการเปลี่ยน seed แล้วฝึกซ้ำหลายรอบเพื่อวัดความไวต่อ partition
+
+การบอกว่า depth/regularization ช่วยควบคุมความซับซ้อนเป็นเหตุผลของ configuration
+ไม่ใช่หลักฐานเชิงทดลองว่าค่าที่เลือกช่วยมากกว่าค่าอื่นใน dataset นี้
+การบอกว่าโมเดลไม่มี overfitting ต้องมีหลักฐานมากกว่าการที่ test AUC ดูดี
+งานนี้ไม่ได้ export training learning curves จึงไม่สรุป underfitting/overfitting แบบเด็ดขาด
+ผล CV/test ที่มีอยู่ใช้วิเคราะห์ generalization ภายใน protocol นี้ได้ แต่ไม่ตอบทุกคำถามข้างต้น
+
 ### ตาราง CV — base model ก่อน calibration
 
 ค่า ROC-AUC/AP ในตารางนี้มาจาก validation folds ของ fit partition เท่านั้น
@@ -728,6 +821,44 @@ Confusion matrix ใช้ลำดับแถว true 0/1 และคอล�
         table(['fold','n fit','n validation','AUC','AP','Recall@0.5','F1@0.5'],[(f['fold'],f['n_fit'],f['n_validation'],*[f"{f[k]:.6f}" for k in ['roc_auc','average_precision','recall_at_0_5','f1_at_0_5']]) for f in cv['folds']])
     champion=m['test_benchmarks'][m['model_name']]
     cm=champion['confusion_matrix']
+    add('''### อภิปรายผลเชิง Machine Learning
+
+ควรอ่านผลเป็นสามด้านแยกกัน: discrimination, probability calibration และ operating point
+โมเดลที่ AUC สูงที่สุดไม่จำเป็นต้องมี Brier ต่ำที่สุดหรือเหมาะกับ threshold ที่ต้องการ
+ให้เลือกเกณฑ์จาก intended use ก่อนพิจารณาผล final test
+ตารางด้านล่างดึงตัวเลขจาก artifacts เดิม ไม่ได้เพิ่มการทดลองหรือใช้ test เปลี่ยนโมเดล
+''')
+    table(['โมเดล','CV AUC','Test AUC','Test − CV AUC'],[
+        (name, f"{m['cv_benchmarks'][name]['roc_auc_mean']:.4f}",
+         f"{r['roc_auc']:.4f}",
+         f"{r['roc_auc']-m['cv_benchmarks'][name]['roc_auc_mean']:+.4f}")
+        for name,r in m['test_benchmarks'].items()
+    ])
+    add('''ช่อง Test − CV เป็นเพียงผลต่างเชิงพรรณนา
+CV ใช้ base models ที่ฝึกบน fold-training ขณะที่ test ใช้ final base model และ calibration
+ไม่ได้เป็น estimator ของ generalization gap ที่ควบคุมทุกปัจจัยเหมือนกัน
+ค่าบวกไม่ได้พิสูจน์ว่ามี leakage และค่าลบไม่ได้พิสูจน์ overfitting โดยตัวมันเอง
+ต้องพิจารณาขนาดข้อมูล ความผันผวนของ folds การเลือกโมเดล และความต่างของ training size
+
+GradientBoosting มี test AUC สูงกว่า Random Forest เล็กน้อยในรอบนี้
+แต่ Random Forest มี mean CV AUC สูงกว่า จึงยังคงเป็น champion ตามกฎที่ล็อกไว้
+ถ้าเปลี่ยน champion เพราะเห็น test ผล test ชุดนี้จะกลายเป็นข้อมูลสำหรับ model selection
+และต้องมีชุดประเมินอิสระเพิ่มก่อนอ้างผลสุดท้ายของกระบวนการใหม่
+
+Logistic Regression ให้ผลใกล้เคียง ensembles จึงเป็น baseline ที่มีสาระ
+ไม่ควรสรุปว่า nonlinear complexity จำเป็นมากจากอันดับเพียงอย่างเดียว
+ต้องมี ablation หรือการทดลองเพิ่มบน development data จึงแยกผลของ feature redundancy ได้
+
+การ calibrate ทำให้ Brier ของ balanced models ส่วนใหญ่ต่ำลงใน test รอบนี้
+แต่ GradientBoosting ไม่ได้ดีขึ้นทุก metric หลัง calibration
+จึงไม่เขียนว่า calibration ทำให้ทุกโมเดลดีขึ้นเสมอ
+sigmoid calibration เป็นส่วนหนึ่งของ protocol ที่ประเมิน ไม่ใช่เหตุผลให้ข้ามการตรวจ reliability
+
+การเลือก threshold ที่เน้น sensitivity ทำให้ false positive เพิ่มขึ้น
+คะแนน test ของ champion จึงไม่ควรถูกรายงานเฉพาะ recall โดยซ่อน precision/specificity
+และไม่ควรรายงานเฉพาะ accuracy ของ baseline ซึ่งทาย class 0 ทั้งหมดที่ threshold 0.5
+การวิเคราะห์นี้ใช้ตัวเลขทุกด้านเพื่อระบุว่าระบบทำอะไรได้และยังมีข้อจำกัดตรงไหน
+''')
     add(f'''### ตีความผล champion เป็นจำนวนคน
 
 Test มี {m['test_n']} คน
@@ -852,6 +983,25 @@ gender coding มีข้อจำกัดตาม binary sex coding ขอ�
 อายุ 80+ map เป็น 80 เพื่อให้ตรง top-coded training representation
 ไม่ได้อ้างว่าสามารถจัดอันดับความเสี่ยงตามอายุจริงในกลุ่มสูงอายุ 80–120 ได้
 
+### Backend สำคัญต่อคุณภาพ ML ตรงไหน
+
+backend เป็นจุดเชื่อมระหว่าง representation ตอน training กับข้อมูลที่เข้ามาจริง
+หากแปลงหน่วยผิด ลำดับ features สลับ หรือเติม default คนละชุด โมเดลเดิมก็ให้ผลคนละความหมายได้
+จึงใช้ feature engineering เดียวกันและให้ fitted preprocessing อยู่ใน predictor ที่ serialize ไว้
+ไม่เขียน preprocessing อีกชุดใน JavaScript แล้วหวังว่าจะตรงกับ training โดยอัตโนมัติ
+
+ลำดับ inference ที่ต้องตรวจคือ request → validation → feature engineering
+→ fitted imputation/scaling → base classifier → calibration → threshold/explanation
+threshold ใช้ probability เต็มก่อนปัดเศษ
+SHAP ต้องอธิบาย output หลัง calibration และตรวจ additivity ได้
+JSON metadata ต้องอ้างถึง model artifact รุ่นเดียวกัน
+สิ่งเหล่านี้เป็นส่วนของ ML correctness แม้จะไม่มีหน้าเว็บ
+
+การทดสอบ train/serve parity ใช้แถวจากข้อมูลจริงมาสร้าง request
+แล้วตรวจว่า engineered features ตรงกับ training representation
+การตรวจ zero-adjustment scenario เป็น invariant ว่าเปลี่ยน input ศูนย์แล้ว prediction ต้องคงเดิม
+ทั้งสองอย่างมีประโยชน์มากกว่าการเห็นหน้าเว็บแสดงตัวเลขได้เพียงอย่างเดียว
+
 ### Endpoints
 ''')
     table(['method','path','หน้าที่'],[
@@ -867,13 +1017,13 @@ score เป็นผลจาก artifact ที่สร้างใน audit 
 SHAP ราย feature อาจเปลี่ยนเล็กน้อยเมื่อเรียกใหม่เพราะใช้ permutation approximation
 probability ของ input เดิมยังคงเดิม
 ''')
-    for name in ['predict','simulate','identity_simulation']:
+    for name in ['predict']:
         ex=examples[name]
         add(f"#### `{name}` — `{ex['path']}`\n\nRequest:")
         code(json.dumps(ex['request'],indent=2,ensure_ascii=False),'json')
         add('Response ที่ได้จริง:')
         code(json.dumps(ex['response'],indent=2,ensure_ascii=False),'json')
-    add('''## What-if และ frontend
+    add('''## Input scenarios และส่วนสาธิต
 
 ### What-if เปลี่ยนอะไรจริง
 
@@ -906,34 +1056,21 @@ adjustments ว่างต้องได้ score เดิมและ delta=
 โมเดล cross-sectional ที่มี known diabetes อยู่ด้วยอาจให้ทิศทางสวนกับ intuition ได้
 จึงไม่ควรบังคับ slider ทุกตัวให้ score ลดลงด้วยสูตรเพิ่มเติมที่ไม่มีหลักฐาน
 
-### สิ่งที่แก้บนหน้าเว็บ
+### ส่วนสาธิตหน้าเว็บ
 
-- ข้อความนำระบุ educational cross-sectional proxy model
-- เอา prediabetes alert และคำแนะนำเชิงสาเหตุจาก SHAP ออก
-- แสดง threshold ของ screening แยกจากช่วงสี 20/50%
-- percentile ระบุว่าเป็น unweighted training OOF reference
-- แสดงรายการ fields ที่ impute
-- waist ratio ที่ไม่มี measured waist แสดงว่า missing
-- BMI ต่ำกว่า 18.5 ไม่ถูกเรียกว่า normal อัตโนมัติ
-- เพิ่มช่อง calories ที่ผู้ใช้แก้ไขได้และเว้นว่างได้ แทนค่า 2,100 kcal ที่เคยส่งแบบซ่อนอยู่
-- activity wording ตรง PAQ650
-- simulator เริ่มจาก baseline ไม่เปิด intervention โดยอัตโนมัติ
-- reset คืน vigorous_activity ตาม baseline
-- ใช้ request counter ป้องกัน response ของ slider เก่าทับค่าล่าสุด
-- แสดง simulation errors และสถานะ updating
-- หน่วย absolute score change เป็น pp
-
-### การเชื่อมต่อ frontend
-
-`frontend/src/lib/api.ts` ใช้ fetch เรียก backend
-ค่า default API origin คือ http://localhost:8000
-override ผ่าน NEXT_PUBLIC_API_URL ได้ตอนรัน/สร้าง frontend
-`page.tsx` เก็บ assessment ล่าสุดและผล prediction
-ส่ง baseline เดียวกันต่อให้ WhatIfSimulator
-RiskGauge และ RiskDrivers เป็นองค์ประกอบแสดงผล
-RecommendationCard ตอนนี้อธิบายวิธีอ่าน score และข้อจำกัดแทน clinical advice ที่สร้างจากเครื่องหมาย SHAP
+หน้าเว็บเรียก backend เพื่อส่ง inputs และแสดง model score, threshold และ SHAP
+เป็นองค์ประกอบเสริมสำหรับสาธิต ไม่ใช่ส่วนที่ใช้ train, calibrate หรือเลือกโมเดล
+จึงไม่รวม source ของ React components และรายละเอียด styling ในรายงานหลัก
+ตัวอย่าง scenario request/response เต็มอยู่ใน `audit/api_examples.json`
+การวิเคราะห์เชิงวิชา AI ให้พิจารณา f(x), missingness, feature consistency และข้อจำกัดเชิงเหตุผลข้างต้น
 
 ## วิธีรันตั้งแต่ต้น
+
+### รันงาน Machine Learning ได้โดยไม่ต้องเปิดเว็บ
+
+ขั้นตอน 1–8 ครอบคลุมข้อมูล การฝึก การประเมิน การตรวจผล และการสร้างรายงาน
+ใช้ Python เป็นหลัก ไม่ต้องติดตั้ง Node.js เพื่อทำซ้ำ benchmark
+ขั้นตอน 9 ใช้เฉพาะเมื่อต้องการทดสอบบริการ HTTP ของ backend
 
 ### Environment ที่ใช้จริง
 ''')
@@ -1019,28 +1156,19 @@ subgroup metrics เป็นการตรวจเชิงอธิบาย
 ใช้ 127.0.0.1 สำหรับการทดลองในเครื่อง
 configuration ปัจจุบันเป็น local-development configuration ไม่ได้ผ่าน production deployment review
 
-### 10. เปิด frontend ใน terminal อีกแท็บ
+### ส่วนเสริม: เปิดหน้าเว็บสาธิต
 ''')
     code('''cd "/path/to/CPE310 AI/frontend"
 npm ci
 npm run dev''','bash')
-    add('''เปิด http://localhost:3000
-กรอกข้อมูลจริงที่ทราบ ปล่อย optional measurements ว่างเมื่อไม่ทราบ
-ตรวจรายการ imputed fields เมื่ออ่านผล
-อย่าใช้ผลจาก preset เป็นหลักฐานว่าผู้ใช้จริงต้องอยู่ใน risk tier เดียวกัน
-
-### 11. ตรวจ TypeScript และ production build
+    add('''เปิด http://localhost:3000 เพื่อสาธิตการเรียก backend
+ไม่ต้องเปิดหน้าเว็บเพื่อฝึกโมเดลหรือทำซ้ำผลการทดลอง
 ''')
-    code('''cd "/path/to/CPE310 AI/frontend"
-./node_modules/.bin/tsc --noEmit
-npm run build''','bash')
     add('''## การทดสอบและตรวจซ้ำ
 
 ### ผลการตรวจที่รันจริง
 
 - `python -m unittest discover -s tests -v`: ผ่าน 12 tests
-- `tsc --noEmit`: ผ่าน
-- `npm run build`: ผ่าน production compilation, type checks และ static page generation
 - โหลด artifact และเรียก predict/simulate ผ่าน FastAPI TestClient ได้จริง
 - ทวน test metrics จาก CSV predictions ได้ตรงกับ metadata
 - ทวน SHAP additivity กับ deployed probability ผ่าน
@@ -1048,7 +1176,8 @@ npm run build''','bash')
 มี deprecation warnings จาก FastAPI/Starlette test client และ joblib/NumPy ใน environment ที่ใช้
 ไม่ใช่ test failure แต่ควรตรวจ compatibility อีกครั้งก่อนอัปเกรด dependency
 ไม่ได้ทำ manual visual QA ครบทุก browser/device หรือ deployment ภายนอก
-production build ผ่านไม่ได้แปลว่า medical validation ผ่าน
+หน้าเว็บเคยผ่าน TypeScript และ production build ระหว่าง audit แรก เป็นเพียงการตรวจส่วนสาธิต
+ผลหลักของวิชา AI คือความถูกต้องของ label/pipeline และหลักฐานการประเมินโมเดลข้างต้น
 
 ### Regression tests ตรวจอะไร
 ''')
@@ -1105,7 +1234,7 @@ assert best_cv == meta['model_name']
     add('''joblib เป็น Python serialization format ที่มีโค้ด/objects อยู่ได้
 โหลดเฉพาะ artifacts ที่สร้างและเชื่อถือได้จากโปรเจคนี้
 `audit/original/` เก็บไฟล์ก่อนแก้เพื่อการตรวจย้อนหลัง ไม่ใช่ artifact ที่ backend ใหม่ควรเลือกใช้
-ไม่มี Git repository ใน workspace ตอนตรวจ จึงไม่มี commit hash หรือ PR สำหรับการเปลี่ยนครั้งนี้
+ในการ audit ครั้งแรก workspace ยังไม่มี Git repository จึงไม่มี commit hash ของการรันครั้งนั้น
 ใช้ source backups, logs, manifests และ hashes เป็นหลักฐานแทน
 
 ## ข้อจำกัดและแนวทางพัฒนา
@@ -1212,11 +1341,6 @@ weights ใช้เมื่อจะประมาณค่าระดับ
             'มีทั้งตัวอย่างที่ทราบคำตอบและการตรวจ artifact จริง',
             'ตรวจ CV fit boundary ผ่าน recording pipeline โดยไม่ต้อง retrain candidate ใหญ่',
             'ตรวจ API ผ่าน FastAPI routes ไม่ได้เรียกเพียง helper function']),
-        ('frontend/src/components/WhatIfSimulator.tsx','State และ input scenarios ของหน้าเว็บ',[
-            'เริ่มต้นด้วย adjustments ศูนย์และ activity เท่ากับ baseline',
-            'request ID ป้องกัน response เก่าทับ response ใหม่เมื่อเลื่อนเร็ว',
-            'แสดง score difference เป็น pp พร้อมข้อความ association-only',
-            'reset คืน state ให้ตรงกับ baseline รวม activity']),
     ]
     for path,title,notes in modules:
         add(f'### `{path}` — {title}')
